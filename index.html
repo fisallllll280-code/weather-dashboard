@@ -14,6 +14,15 @@
           <h1>Forecast Overview</h1>
         </div>
 
+        <div class="toolbar">
+          <button id="theme-toggle" class="toolbar-btn" type="button" aria-label="Toggle theme">
+            🌙 Dark
+          </button>
+          <button id="geo-btn" class="toolbar-btn" type="button" aria-label="Use my location">
+            📍 My Location
+          </button>
+        </div>
+
         <form id="search-form" class="search-form">
           <input
             id="city-input"
@@ -25,6 +34,8 @@
           <button type="submit">Search</button>
         </form>
       </header>
+
+      <section id="favorites" class="favorites" aria-label="Favorite cities"></section>
 
       <main class="dashboard">
         <section class="card current-card">

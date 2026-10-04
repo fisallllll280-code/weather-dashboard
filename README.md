@@ -9,6 +9,9 @@ A modern weather dashboard that fetches real-time data from a public weather API
 - Hourly forecast
 - 5-day forecast
 - Responsive UI
+- Favorite cities
+- My Location button
+- Light/Dark theme toggle
 
 ## Public API used
 - Open-Meteo (no API key required)

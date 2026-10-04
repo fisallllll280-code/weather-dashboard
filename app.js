@@ -42,8 +42,13 @@ const wind = document.getElementById("wind");
 const timezone = document.getElementById("timezone");
 const hourlyForecast = document.getElementById("hourly-forecast");
 const dailyForecast = document.getElementById("daily-forecast");
+const favoritesContainer = document.getElementById("favorites");
+const themeToggle = document.getElementById("theme-toggle");
+const geoBtn = document.getElementById("geo-btn");
 
 const defaultCity = "London";
+const favoritesKey = "weather-dashboard-favorites";
+const favoriteCities = JSON.parse(localStorage.getItem(favoritesKey) || "[]");
 
 function formatTemp(value) {
   return `${Math.round(value)}°C`;
@@ -64,6 +69,45 @@ function formatDay(dateString) {
 
 function getWeatherStatus(code) {
   return weatherCodeMap[code] || { label: "Unknown", icon: "❔" };
+}
+
+function saveFavorites() {
+  localStorage.setItem(favoritesKey, JSON.stringify(favoriteCities));
+}
+
+function renderFavorites() {
+  favoritesContainer.innerHTML = "";
+
+  if (!favoriteCities.length) {
+    const empty = document.createElement("div");
+    empty.className = "favorite-empty";
+    empty.textContent = "No favorite cities yet";
+    favoritesContainer.appendChild(empty);
+    return;
+  }
+
+  favoriteCities.forEach((city) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "favorite-btn";
+    button.textContent = city;
+    button.addEventListener("click", () => {
+      cityInput.value = city;
+      fetchWeather(city);
+    });
+    favoritesContainer.appendChild(button);
+  });
+}
+
+function addFavorite(city) {
+  const normalized = city.trim();
+  if (!normalized) return;
+
+  if (!favoriteCities.includes(normalized)) {
+    favoriteCities.push(normalized);
+    saveFavorites();
+    renderFavorites();
+  }
 }
 
 async function fetchWeather(city) {
@@ -96,6 +140,7 @@ async function fetchWeather(city) {
 
     const data = await weatherRes.json();
     renderWeather(place.name, data);
+    addFavorite(place.name);
   } catch (error) {
     alert(error.message || "Unable to fetch weather data");
   }
@@ -169,10 +214,82 @@ function renderDaily(daily) {
   });
 }
 
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+  const isLight = document.body.classList.contains("light-theme");
+  themeToggle.textContent = isLight ? "🌙 Dark" : "☀️ Light";
+  localStorage.setItem("weather-theme", isLight ? "light" : "dark");
+}
+
+function applyThemeFromStorage() {
+  const savedTheme = localStorage.getItem("weather-theme");
+  if (savedTheme === "light") {
+    document.body.classList.add("light-theme");
+    themeToggle.textContent = "🌙 Dark";
+  } else {
+    themeToggle.textContent = "☀️ Light";
+  }
+}
+
+async function fetchByCoordinates(lat, lon) {
+  const weatherRes = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`
+  );
+
+  if (!weatherRes.ok) {
+    throw new Error("Failed to fetch location weather");
+  }
+
+  const data = await weatherRes.json();
+  const locationName = cityInput.value.trim() || "My Location";
+  renderWeather(locationName, data);
+  addFavorite(locationName);
+}
+
 searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const city = cityInput.value.trim() || defaultCity;
   fetchWeather(city);
 });
 
+themeToggle.addEventListener("click", toggleTheme);
+
+geoBtn.addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  geoBtn.disabled = true;
+  geoBtn.textContent = "Locating...";
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      try {
+        const reverseRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en&format=json`
+        );
+        const reverseData = await reverseRes.json();
+        const place = reverseData.results?.[0];
+        const city = place?.name || "My Location";
+        cityInput.value = city;
+        await fetchByCoordinates(latitude, longitude);
+      } catch (error) {
+        await fetchByCoordinates(latitude, longitude);
+      } finally {
+        geoBtn.disabled = false;
+        geoBtn.textContent = "📍 My Location";
+      }
+    },
+    () => {
+      alert("Unable to get your location. Please try again.");
+      geoBtn.disabled = false;
+      geoBtn.textContent = "📍 My Location";
+    }
+  );
+});
+
+applyThemeFromStorage();
+renderFavorites();
 fetchWeather(defaultCity);
