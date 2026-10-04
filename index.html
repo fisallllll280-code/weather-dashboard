@@ -1,96 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A modern weather dashboard with live current conditions and forecasts."
+    />
     <title>Weather Dashboard</title>
-    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="/src/main.jsx"></script>
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Weather Dashboard</p>
-          <h1>Forecast Overview</h1>
-        </div>
-
-        <div class="toolbar">
-          <button id="theme-toggle" class="toolbar-btn" type="button" aria-label="Toggle theme">
-            🌙 Dark
-          </button>
-          <button id="geo-btn" class="toolbar-btn" type="button" aria-label="Use my location">
-            📍 My Location
-          </button>
-        </div>
-
-        <form id="search-form" class="search-form">
-          <input
-            id="city-input"
-            type="text"
-            placeholder="Search city..."
-            value="London"
-            aria-label="City input"
-          />
-          <button type="submit">Search</button>
-        </form>
-      </header>
-
-      <section id="favorites" class="favorites" aria-label="Favorite cities"></section>
-
-      <main class="dashboard">
-        <section class="card current-card">
-          <div class="city-row">
-            <div>
-              <p class="label">Current Weather</p>
-              <h2 id="city-name">London</h2>
-            </div>
-            <div id="weather-icon" class="weather-icon" aria-label="Weather icon">☀️</div>
-          </div>
-
-          <div class="temp-row">
-            <div id="temperature" class="temperature">--°C</div>
-            <div class="condition-block">
-              <p id="condition" class="condition">Loading...</p>
-              <p id="updated-time" class="subtext">Updating...</p>
-            </div>
-          </div>
-
-          <div class="stats-grid">
-            <div class="stat">
-              <span>Feels like</span>
-              <strong id="feels-like">--°C</strong>
-            </div>
-            <div class="stat">
-              <span>Humidity</span>
-              <strong id="humidity">--%</strong>
-            </div>
-            <div class="stat">
-              <span>Wind</span>
-              <strong id="wind">-- km/h</strong>
-            </div>
-            <div class="stat">
-              <span>Timezone</span>
-              <strong id="timezone">--</strong>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="section-header">
-            <h3>Hourly Forecast</h3>
-          </div>
-          <div id="hourly-forecast" class="hourly-grid"></div>
-        </section>
-
-        <section class="card">
-          <div class="section-header">
-            <h3>5-Day Forecast</h3>
-          </div>
-          <div id="daily-forecast" class="daily-grid"></div>
-        </section>
-      </main>
-    </div>
-
-    <script src="app.js"></script>
+    <div id="root"></div>
   </body>
 </html>
